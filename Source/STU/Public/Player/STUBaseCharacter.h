@@ -8,6 +8,8 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class USTUHealthComponent;
+class UTextRenderComponent;
 
 UCLASS()
 class STU_API ASTUBaseCharacter : public ACharacter
@@ -15,7 +17,6 @@ class STU_API ASTUBaseCharacter : public ACharacter
     GENERATED_BODY()
 
 public:
-    // Sets default values for this character's properties
     ASTUBaseCharacter(const FObjectInitializer& ObjInit);
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
@@ -25,7 +26,6 @@ public:
     float GetMovementDirection() const;
 
 protected:
-    // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -34,11 +34,26 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
 
-public:
-    // Called every frame
-    virtual void Tick(float DeltaTime) override;
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    USTUHealthComponent* HealthComponent;
 
-    // Called to bind functionality to input
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTextRenderComponent* HealthTextComponent;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* DeathAnimMontage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    float LifeSpanOnDeath = 5.f;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    FVector2D LandedDamageVelocity = FVector2D(900.f, 1200.f);
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    FVector2D LandedDamage = FVector2D(10.f, 100.f);
+
+public:
+    virtual void Tick(float DeltaTime) override;
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
@@ -49,4 +64,9 @@ private:
     void MoveRight(float Amount);
     void StartRunning();
     void StopRunning();
+    void OnDeath();
+    void OnHealthChanged(float Health);
+
+    UFUNCTION()
+    void OnGroundLanded(const FHitResult& HitResult);
 };
